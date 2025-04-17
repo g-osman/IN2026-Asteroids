@@ -1,0 +1,28 @@
+# Ignore VS temporary files
+.vs/
+*.suo
+*.user
+*.VC.db
+*.log
+
+# Ignore build outputs
+Debug/
+Release/
+x64/
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.idb
+*.ipch
+*.sdf
+*.opensdf
+
+# OS/IDE junk
+*.DS_Store
+Thumbs.db
+
+# Ignore project-level temp files
+*.cache
+*.dbmdl

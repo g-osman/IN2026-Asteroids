@@ -10,9 +10,25 @@
 #include "Player.h"
 #include "IPlayerListener.h"
 
+//New header includes
+#include "vector"
+#include "GUIComponent.h" 
+#include "GUILabel.h"     
+#include "GLVector.h"      
+
+
 class GameObject;
 class Spaceship;
 class GUILabel;
+
+//  this enum is to keep track of game states 
+enum GameState {
+	MENU,
+	PLAYING,
+	GAME_OVER,
+	INSTRUCTIONS  
+};
+
 
 class Asteroids : public GameSession, public IKeyboardListener, public IGameWorldListener, public IScoreListener, public IPlayerListener
 {
@@ -46,6 +62,11 @@ public:
 
 	// Override the default implementation of ITimerListener ////////////////////
 	void OnTimer(int value);
+	
+	// New methods that we added
+	void ReturnToMenu();
+	void ShowInstructions();
+
 
 private:
 	shared_ptr<Spaceship> mSpaceship;
@@ -68,6 +89,23 @@ private:
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;
+
+	// members and member function declaration 
+	GameState mGameState;
+	vector<shared_ptr<GameObject>> mMenuAsteroids;
+	shared_ptr<GUILabel> mTitleLabel;
+	shared_ptr<GUILabel> mStartLabel;
+	shared_ptr<GUILabel> mDifficultyLabel;
+	shared_ptr<GUILabel> mInstructionsLabel;
+	shared_ptr<GUILabel> mHighScoreLabel;
+	shared_ptr<GUILabel> mInstructionsText;
+	shared_ptr<GUILabel> mBackLabel;
+	vector<shared_ptr<GUILabel>> mInstructionLines; 
+	void CreateMenu();
+	void StartGame();
+	void ShowGameGUI(bool show);
+	void ClearMenuAsteroids();
+
 };
 
 #endif

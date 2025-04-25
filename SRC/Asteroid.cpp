@@ -31,5 +31,3 @@ void Asteroid::OnCollision(const GameObjectList& objects)
 {
 	mWorld->FlagForRemoval(GetThisPtr());
 }
-
-//random comment testing push

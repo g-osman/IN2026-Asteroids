@@ -1,15 +1,32 @@
-# Ignore Visual Studio temp files
+# Visual Studio
 .vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
 *.obj
 *.exe
-*.ilk
 *.pdb
-*.idb
-*.tlog
+*.ilk
 *.log
+*.tlog
+*.ipch
+*.aps
+*.ncb
+*.cache
+*.db
+*.opendb
+*.shm
+*.wal
+*.VC.db*
 
-# Ignore build directories
+# Backup and other files
+*.bak
+*.tmp
+*.swp
+
+# Ignore Debug/Release folders
 Debug/
 Release/
-BIN/
-LIB/

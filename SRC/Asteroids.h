@@ -15,6 +15,8 @@
 #include "GUIComponent.h" 
 #include "GUILabel.h"     
 #include "GLVector.h"      
+#include <algorithm>
+#include <fstream>
 
 
 class GameObject;
@@ -26,9 +28,10 @@ enum GameState {
 	MENU,
 	PLAYING,
 	GAME_OVER,
-	INSTRUCTIONS  
+	INSTRUCTIONS,
+	HIGH_SCORES, 
+	NAME_ENTRY   
 };
-
 
 class Asteroids : public GameSession, public IKeyboardListener, public IGameWorldListener, public IScoreListener, public IPlayerListener
 {
@@ -63,7 +66,7 @@ public:
 	// Override the default implementation of ITimerListener ////////////////////
 	void OnTimer(int value);
 	
-	// New methods that we added
+	// New methods that I added
 	void ReturnToMenu();
 	void ShowInstructions();
 
@@ -106,6 +109,33 @@ private:
 	void ShowGameGUI(bool show);
 	void ClearMenuAsteroids();
 
+	// for scoring (name then score ) 
+	struct HighScoreEntry {
+		string name;
+		int score;
+
+		bool operator<(const HighScoreEntry& other) const {
+			return score > other.score; 
+		}
+	};
+
+	
+
+	vector<HighScoreEntry> mHighScores;
+	shared_ptr<GUILabel> mHighScoreTitleLabel;
+	vector<shared_ptr<GUILabel>> mHighScoreLabels;
+	shared_ptr<GUILabel> mEnterNameLabel;
+	shared_ptr<GUILabel> mNameInputLabel;
+	string mPlayerNameInput;
+	bool mWaitingForNameInput;
+
+	void LoadHighScores();
+	void SaveHighScores();
+	void ShowNameInputScreen();
+	void AddHighScore(const string& name, int score);
+	void UpdateNameInputDisplay();
+	void ShowHighScoreTable();
+	bool ShouldQualifyForHighScore();
 };
 
 #endif

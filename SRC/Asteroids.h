@@ -29,14 +29,14 @@ enum GameState {
 	PLAYING,
 	GAME_OVER,
 	INSTRUCTIONS,
-	HIGH_SCORES, 
-	NAME_ENTRY   
+	HIGH_SCORES,
+	NAME_ENTRY
 };
 
 class Asteroids : public GameSession, public IKeyboardListener, public IGameWorldListener, public IScoreListener, public IPlayerListener
 {
 public:
-	Asteroids(int argc, char *argv[]);
+	Asteroids(int argc, char* argv[]);
 	virtual ~Asteroids(void);
 
 	virtual void Start(void);
@@ -65,7 +65,7 @@ public:
 
 	// Override the default implementation of ITimerListener ////////////////////
 	void OnTimer(int value);
-	
+
 	// New methods that I added
 	void ReturnToMenu();
 	void ShowInstructions();
@@ -85,7 +85,7 @@ private:
 	void CreateGUI();
 	void CreateAsteroids(const uint num_asteroids);
 	shared_ptr<GameObject> CreateExplosion();
-	
+
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
@@ -103,7 +103,7 @@ private:
 	shared_ptr<GUILabel> mHighScoreLabel;
 	shared_ptr<GUILabel> mInstructionsText;
 	shared_ptr<GUILabel> mBackLabel;
-	vector<shared_ptr<GUILabel>> mInstructionLines; 
+	vector<shared_ptr<GUILabel>> mInstructionLines;
 	void CreateMenu();
 	void StartGame();
 	void ShowGameGUI(bool show);
@@ -115,11 +115,11 @@ private:
 		int score;
 
 		bool operator<(const HighScoreEntry& other) const {
-			return score > other.score; 
+			return score > other.score;
 		}
 	};
 
-	
+
 
 	vector<HighScoreEntry> mHighScores;
 	shared_ptr<GUILabel> mHighScoreTitleLabel;
@@ -136,6 +136,9 @@ private:
 	void UpdateNameInputDisplay();
 	void ShowHighScoreTable();
 	bool ShouldQualifyForHighScore();
+
+	//variable for extra lives
+	int mNextLifeScoreThreshold;
 };
 
 #endif

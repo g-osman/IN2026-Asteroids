@@ -47,7 +47,8 @@ public:
 	int GetHeight() { return mHeight; }
 
 	void WrapXY(float &x, float &y);
-
+	float GetWorldWidth() const { return mWidth; }
+	float GetWorldHeight() const { return mHeight; }
 protected:
 	void UpdateObjects(int t);
 	void UpdateCollisions(int t);

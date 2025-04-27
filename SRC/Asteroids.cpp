@@ -16,11 +16,13 @@
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
 /** Constructor. Takes arguments from command line, just in case. */
+//nodified constructor to set defualt value for mNextLifeScoreThreshold
 Asteroids::Asteroids(int argc, char* argv[])
 	: GameSession(argc, argv)
 {
 	mLevel = 0;
 	mAsteroidCount = 0;
+	mNextLifeScoreThreshold = 300;
 }
 
 /** Destructor. */
@@ -56,7 +58,7 @@ void Asteroids::Start()
 	Animation* asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation* spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
 
-	
+
 	mGameState = MENU;
 	LoadHighScores();
 	CreateMenu();
@@ -112,13 +114,13 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 		break;
 
 	case NAME_ENTRY:
-		if (key == 13) { 
+		if (key == 13) {
 			if (!mPlayerNameInput.empty()) {
 				AddHighScore(mPlayerNameInput, mScoreKeeper.GetScore());
 				mWaitingForNameInput = false;
 				mGameState = HIGH_SCORES;
 
-				
+
 				mGameDisplay->GetContainer()->RemoveComponent(
 					static_pointer_cast<GUIComponent>(mEnterNameLabel));
 				mGameDisplay->GetContainer()->RemoveComponent(
@@ -127,7 +129,7 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 				ShowHighScoreTable();
 			}
 		}
-		else if (key == 8 && !mPlayerNameInput.empty()) { 
+		else if (key == 8 && !mPlayerNameInput.empty()) {
 			mPlayerNameInput.pop_back();
 			UpdateNameInputDisplay();
 		}
@@ -281,14 +283,27 @@ void Asteroids::CreateGUI()
 	mGameDisplay->GetContainer()->AddComponent(game_over_component, GLVector2f(0.5f, 0.5f));
 }
 
+
+//modified this method to give extra live on every  300 score
 void Asteroids::OnScoreChanged(int score)
 {
-	// Format the score message using an string-based stream
-	std::ostringstream msg_stream;
+	
+	ostringstream msg_stream;
 	msg_stream << "Score: " << score;
-	// Get the score message as a string
-	std::string score_msg = msg_stream.str();
-	mScoreLabel->SetText(score_msg);
+	mScoreLabel->SetText(msg_stream.str());
+
+	
+	if (score >= mNextLifeScoreThreshold) {
+		mPlayer.IncrementLives();
+		mLivesLabel->SetText("Lives: " + std::to_string(mPlayer.GetLives()));
+
+		
+		shared_ptr<GameObject> explosion = CreateExplosion();
+		explosion->SetPosition(GLVector3f(0, 0, 0));
+		mGameWorld->AddObject(explosion);
+
+		mNextLifeScoreThreshold += 300;
+	}
 }
 // updated this method to show name input page 
 void Asteroids::OnPlayerKilled(int lives_left)
@@ -301,18 +316,18 @@ void Asteroids::OnPlayerKilled(int lives_left)
 	mLivesLabel->SetText("Lives: " + std::to_string(lives_left));
 
 	if (lives_left > 0) {
-        SetTimer(1000, CREATE_NEW_PLAYER);
-    }
-    else {
-        mGameOverLabel->SetVisible(true);
-        if (ShouldQualifyForHighScore()) {
-            mGameState = NAME_ENTRY;
-            ShowNameInputScreen();
-        }
-        else {
-            mGameState = GAME_OVER;
-        }
-    }
+		SetTimer(1000, CREATE_NEW_PLAYER);
+	}
+	else {
+		mGameOverLabel->SetVisible(true);
+		if (ShouldQualifyForHighScore()) {
+			mGameState = NAME_ENTRY;
+			ShowNameInputScreen();
+		}
+		else {
+			mGameState = GAME_OVER;
+		}
+	}
 }
 
 // New function to create main menu at the start 
@@ -362,8 +377,8 @@ void Asteroids::CreateMenu()
 		"Avoid asteroid collisions!"
 	};
 
-	float yPos = 0.7f; 
-	float yStep = 0.08f; 
+	float yPos = 0.7f;
+	float yStep = 0.08f;
 
 	for (const auto& line : instructions) {
 		auto instructionLine = make_shared<GUILabel>(line);
@@ -542,7 +557,7 @@ void Asteroids::ShowNameInputScreen() {
 }
 
 void Asteroids::UpdateNameInputDisplay() {
-	mNameInputLabel->SetText(mPlayerNameInput + "_"); 
+	mNameInputLabel->SetText(mPlayerNameInput + "_");
 }
 
 

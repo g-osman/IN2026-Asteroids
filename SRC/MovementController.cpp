@@ -24,8 +24,14 @@ void MovementController::Accelerate(GLfloat a)
 	mAcceleration = a;
 }
 
+//void MovementController::Rotate(GLfloat r)
+//{
+//	mObject->SetRotation(r);
+//	Accelerate(mAcceleration);
+//}
+
 void MovementController::Rotate(GLfloat r)
 {
-	mObject->SetRotation(r);
-	Accelerate(mAcceleration);
+	// Double rotation speed for "easier turning"  
+	mObject->SetRotation(r * 10.0f);
 }

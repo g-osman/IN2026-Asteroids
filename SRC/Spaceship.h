@@ -27,12 +27,27 @@ public:
 	bool CollisionTest(shared_ptr<GameObject> o);
 	void OnCollision(const GameObjectList &objects);
 
+	//new private members for Implementing Invulnerability   
+	void ActivateInvulnerability(int duration);
+	bool IsInvulnerable() const { return mIsInvulnerable; }
+	void UpdateInvulnerability(int time); 
+
+
 private:
 	float mThrust;
 
 	shared_ptr<Shape> mSpaceshipShape;
 	shared_ptr<Shape> mThrusterShape;
 	shared_ptr<Shape> mBulletShape;
+
+	//new private members for Implementing Invulnerability   
+
+	bool mIsInvulnerable;
+	int mInvulnerabilityTime;
+	int mInvulnerabilityTimer;
+	int mBlinkInterval;
+	bool mIsVisible;
+
 };
 
 #endif

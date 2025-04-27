@@ -9,8 +9,15 @@ using namespace std;
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
 /**  Default constructor. */
+
+//Modified version of constructor for setting default values 
 Spaceship::Spaceship()
-	: GameObject("Spaceship"), mThrust(0)
+	: GameObject("Spaceship"),
+	mIsInvulnerable(false),
+	mInvulnerabilityTime(0),
+	mInvulnerabilityTimer(0),
+	mBlinkInterval(100), 
+	mIsVisible(true)
 {
 }
 
@@ -34,22 +41,25 @@ Spaceship::~Spaceship(void)
 // PUBLIC INSTANCE METHODS ////////////////////////////////////////////////////
 
 /** Update this spaceship. */
+
+// modified to Update invulnerability timer
 void Spaceship::Update(int t)
 {
 	// Call parent update function
 	GameObject::Update(t);
+	UpdateInvulnerability(t);
 }
 
 /** Render this spaceship. */
+// In Render() modified it to add blinking effect for 3 secs 
 void Spaceship::Render(void)
 {
-	if (mSpaceshipShape.get() != NULL) mSpaceshipShape->Render();
+	if (mIsInvulnerable && !mIsVisible) return; // Skip rendering during blink
 
-	// If ship is thrusting
+	if (mSpaceshipShape.get() != NULL) mSpaceshipShape->Render();
 	if ((mThrust > 0) && (mThrusterShape.get() != NULL)) {
 		mThrusterShape->Render();
 	}
-
 	GameObject::Render();
 }
 
@@ -100,7 +110,43 @@ bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 	return mBoundingShape->CollisionTest(o->GetBoundingShape());
 }
 
-void Spaceship::OnCollision(const GameObjectList &objects)
+//Modified this method to set a flag to ignore collision or not 
+void Spaceship::OnCollision(const GameObjectList& objects)
 {
-	mWorld->FlagForRemoval(GetThisPtr());
+	if (mIsInvulnerable) return; // Skip collision handling if invulnerable
+
+	for (auto obj : objects) {
+		if (obj->GetType() == GameObjectType("Asteroid")) {
+			mWorld->FlagForRemoval(shared_from_this());
+			break;
+		}
+	}
+}
+// new method to activate invulnerability
+void Spaceship::ActivateInvulnerability(int duration)
+{
+	mIsInvulnerable = true;
+	mInvulnerabilityTime = duration;
+	mInvulnerabilityTimer = duration;
+	mIsVisible = true;
+}
+// new method to Handle blinking and reseting it 
+void Spaceship::UpdateInvulnerability(int time)
+{
+	if (!mIsInvulnerable) return;
+
+	mInvulnerabilityTimer -= time;
+
+	// Handle blinking
+	if (mInvulnerabilityTimer % mBlinkInterval < time) {
+		mIsVisible = !mIsVisible;
+	}
+
+	// End invulnerability
+	if (mInvulnerabilityTimer <= 0) {
+		mIsInvulnerable = false;
+		mIsVisible = true;
+	}
+
+
 }

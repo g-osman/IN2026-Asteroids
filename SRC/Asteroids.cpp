@@ -195,11 +195,15 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
 
+// updated method to activate invulnerability after respawning 
 void Asteroids::OnTimer(int value)
 {
 	if (value == CREATE_NEW_PLAYER)
 	{
 		mSpaceship->Reset();
+		// Activate 3 seconds of invulnerability after respawn
+		mSpaceship->ActivateInvulnerability(3000);
+
 		mGameWorld->AddObject(mSpaceship);
 	}
 

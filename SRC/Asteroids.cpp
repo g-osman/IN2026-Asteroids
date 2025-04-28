@@ -98,6 +98,12 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 		break;
 
 	case PLAYING:
+		if (key == 'b' || key == 'B') {
+			
+			if (mSpaceship->GetCurrentThrust() <= 0) {
+				mSpaceship->SetBraking(true);
+			}
+		}
 		if (key == ' ') {
 			mSpaceship->Shoot();
 		}
@@ -120,7 +126,6 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 				mWaitingForNameInput = false;
 				mGameState = HIGH_SCORES;
 
-
 				mGameDisplay->GetContainer()->RemoveComponent(
 					static_pointer_cast<GUIComponent>(mEnterNameLabel));
 				mGameDisplay->GetContainer()->RemoveComponent(
@@ -141,36 +146,51 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 	}
 }
 
-
-void Asteroids::OnKeyReleased(uchar key, int x, int y) {}
+void Asteroids::OnKeyReleased(uchar key, int x, int y)
+{
+	if (mGameState == PLAYING && (key == 'b' || key == 'B')) {
+		mSpaceship->SetBraking(false);
+	}
+}
 
 void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 {
+	if (mGameState != PLAYING) return;
+
 	switch (key)
 	{
-		// If up arrow key is pressed start applying forward thrust
-	case GLUT_KEY_UP: mSpaceship->Thrust(10); break;
-		// If left arrow key is pressed start rotating anti-clockwise
-	case GLUT_KEY_LEFT: mSpaceship->Rotate(90); break;
-		// If right arrow key is pressed start rotating clockwise
-	case GLUT_KEY_RIGHT: mSpaceship->Rotate(-90); break;
-		// Default case - do nothing
-	default: break;
+	case GLUT_KEY_UP:
+		mSpaceship->SetBraking(false); 
+		mSpaceship->Thrust(10);
+		break;
+	case GLUT_KEY_LEFT:
+		mSpaceship->Rotate(90);
+		break;
+	case GLUT_KEY_RIGHT:
+		mSpaceship->Rotate(-90);
+		break;
+	default:
+		break;
 	}
 }
 
 void Asteroids::OnSpecialKeyReleased(int key, int x, int y)
 {
+	if (mGameState != PLAYING) return;
+
 	switch (key)
 	{
-		// If up arrow key is released stop applying forward thrust
-	case GLUT_KEY_UP: mSpaceship->Thrust(0); break;
-		// If left arrow key is released stop rotating
-	case GLUT_KEY_LEFT: mSpaceship->Rotate(0); break;
-		// If right arrow key is released stop rotating
-	case GLUT_KEY_RIGHT: mSpaceship->Rotate(0); break;
-		// Default case - do nothing
-	default: break;
+	case GLUT_KEY_UP:
+		mSpaceship->Thrust(0);
+		break;
+	case GLUT_KEY_LEFT:
+		mSpaceship->Rotate(0);
+		break;
+	case GLUT_KEY_RIGHT:
+		mSpaceship->Rotate(0);
+		break;
+	default:
+		break;
 	}
 }
 

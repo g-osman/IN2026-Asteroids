@@ -17,7 +17,7 @@ Spaceship::Spaceship()
 	mInvulnerabilityTime(0),
 	mInvulnerabilityTimer(0),
 	mBlinkInterval(100), 
-	mIsVisible(true)
+	mIsVisible(true) 
 {
 }
 
@@ -42,12 +42,15 @@ Spaceship::~Spaceship(void)
 
 /** Update this spaceship. */
 
-// modified to Update invulnerability timer
+// modified to Update invulnerability timer and braking system
 void Spaceship::Update(int t)
 {
-	// Call parent update function
 	GameObject::Update(t);
 	UpdateInvulnerability(t);
+
+	if (mIsBraking) {
+		ApplyBrake();
+	}
 }
 
 /** Render this spaceship. */
@@ -64,12 +67,17 @@ void Spaceship::Render(void)
 }
 
 /** Fire the rockets. */
+
 void Spaceship::Thrust(float t)
 {
 	mThrust = t;
-	// Increase acceleration in the direction of ship
-	mAcceleration.x = mThrust*cos(DEG2RAD*mAngle);
-	mAcceleration.y = mThrust*sin(DEG2RAD*mAngle);
+	if (t > 0) {
+		mAcceleration.x = mThrust * cos(DEG2RAD * mAngle);
+		mAcceleration.y = mThrust * sin(DEG2RAD * mAngle);
+	}
+	else {
+		mAcceleration = GLVector3f(0, 0, 0);
+	}
 }
 
 /** Set the rotation. */
@@ -148,5 +156,12 @@ void Spaceship::UpdateInvulnerability(int time)
 		mIsVisible = true;
 	}
 
+}
+// new method for implementation of braking system
 
+void Spaceship::ApplyBrake()
+{
+	if (mThrust <= 0) {
+		mVelocity *= (1.0f - mBrakeIntensity * 0.05f);
+	}
 }

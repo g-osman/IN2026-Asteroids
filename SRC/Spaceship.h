@@ -32,6 +32,10 @@ public:
 	bool IsInvulnerable() const { return mIsInvulnerable; }
 	void UpdateInvulnerability(int time); 
 
+	// New method to implement proper braking system 
+	void ApplyBrake(); 
+	void SetBraking(bool braking) { mIsBraking = braking; }
+	float GetCurrentThrust() const { return mThrust; }
 
 private:
 	float mThrust;
@@ -40,7 +44,7 @@ private:
 	shared_ptr<Shape> mThrusterShape;
 	shared_ptr<Shape> mBulletShape;
 
-	//new private members for Implementing Invulnerability   
+	//new  members for Implementing Invulnerability   
 
 	bool mIsInvulnerable;
 	int mInvulnerabilityTime;
@@ -48,6 +52,9 @@ private:
 	int mBlinkInterval;
 	bool mIsVisible;
 
+	// New var to set brake intensity
+	float mBrakeIntensity = 0.7f;  
+	bool mIsBraking = false;
 };
 
 #endif

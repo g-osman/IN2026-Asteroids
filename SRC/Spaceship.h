@@ -37,6 +37,10 @@ public:
 	void SetBraking(bool braking) { mIsBraking = braking; }
 	float GetCurrentThrust() const { return mThrust; }
 
+	// toggle for Invulnerability
+	void SetInvulnerabilityEnabled(bool enabled) {
+		mInvulnerabilityEnabled = enabled;
+	}
 private:
 	float mThrust;
 
@@ -55,6 +59,9 @@ private:
 	// New var to set brake intensity
 	float mBrakeIntensity = 0.7f;  
 	bool mIsBraking = false;
+
+	// for linking difficulty
+	bool mInvulnerabilityEnabled = true;
 };
 
 #endif

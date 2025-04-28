@@ -121,7 +121,7 @@ bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 //Modified this method to set a flag to ignore collision or not 
 void Spaceship::OnCollision(const GameObjectList& objects)
 {
-	if (mIsInvulnerable) return; // Skip collision handling if invulnerable
+	if (mIsInvulnerable && mInvulnerabilityEnabled) return; // Skip collision handling if invulnerable
 
 	for (auto obj : objects) {
 		if (obj->GetType() == GameObjectType("Asteroid")) {

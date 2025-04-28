@@ -16,9 +16,9 @@
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
 /** Constructor. Takes arguments from command line, just in case. */
-//nodified constructor to set defualt value for mNextLifeScoreThreshold
+// modified constructor to set defualt value for mNextLifeScoreThreshold and setting difficulty normal by default
 Asteroids::Asteroids(int argc, char* argv[])
-	: GameSession(argc, argv)
+	: GameSession(argc, argv) , mCurrentDifficulty(NORMAL)
 {
 	mLevel = 0;
 	mAsteroidCount = 0;
@@ -82,7 +82,9 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 	case MENU:
 		switch (tolower(key)) {
 		case '1': StartGame(); break;
-		case '2': /* Difficulty */ break;
+		case '2': mGameState = DIFFICULTY;
+			CreateDifficultyMenu(); 
+			break;
 		case '3': ShowInstructions(); break;
 		case '4':
 			mGameState = HIGH_SCORES;
@@ -143,8 +145,30 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y) {
 			UpdateNameInputDisplay();
 		}
 		break;
+
+	case DIFFICULTY:
+		switch (tolower(key)) {
+		case '1':
+			SetDifficulty(EASY);
+			break;
+		case '2':
+			SetDifficulty(NORMAL);
+			break;
+		case '3':
+			SetDifficulty(HARD);
+			break;
+		case '4':
+			ReturnToMenu();
+			break;
+		default:
+			cout << "Unknown key pressed" << endl;
+		}
+		break;
+
 	}
 }
+
+// modified this method to apply brakes on pressing B 
 
 void Asteroids::OnKeyReleased(uchar key, int x, int y)
 {
@@ -153,6 +177,7 @@ void Asteroids::OnKeyReleased(uchar key, int x, int y)
 	}
 }
 
+// modified to interact with arrows keys and to work with apply brakes and thrust system 
 void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 {
 	if (mGameState != PLAYING) return;
@@ -173,7 +198,7 @@ void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 		break;
 	}
 }
-
+// Modified method to behave normal when key released 
 void Asteroids::OnSpecialKeyReleased(int key, int x, int y)
 {
 	if (mGameState != PLAYING) return;
@@ -308,7 +333,7 @@ void Asteroids::CreateGUI()
 }
 
 
-//modified this method to give extra live on every  300 score
+// modified method to give extra live on every  300 score
 void Asteroids::OnScoreChanged(int score)
 {
 	
@@ -329,7 +354,7 @@ void Asteroids::OnScoreChanged(int score)
 		mNextLifeScoreThreshold += 300;
 	}
 }
-// updated this method to show name input page 
+// updated  method to show name input page 
 void Asteroids::OnPlayerKilled(int lives_left)
 {
 	shared_ptr<GameObject> explosion = CreateExplosion();
@@ -428,7 +453,7 @@ void Asteroids::StartGame() {
 	mGameState = PLAYING;
 	ClearMenuAsteroids();
 
-	// Clear all previous UI elements
+	
 	mTitleLabel->SetVisible(false);
 	mStartLabel->SetVisible(false);
 	mDifficultyLabel->SetVisible(false);
@@ -436,27 +461,23 @@ void Asteroids::StartGame() {
 	mHighScoreLabel->SetVisible(false);
 	mBackLabel->SetVisible(false);
 
-	// Clear instruction lines
+	
 	for (auto& line : mInstructionLines) {
 		line->SetVisible(false);
 	}
 
-	// Clear high score display
 	for (auto label : mHighScoreLabels) {
 		mGameDisplay->GetContainer()->RemoveComponent(
 			static_pointer_cast<GUIComponent>(label));
 	}
 	mHighScoreLabels.clear();
 
-	// Show game UI
 	mScoreLabel->SetVisible(true);
 	mLivesLabel->SetVisible(true);
 
-	// Initialize game objects
 	mGameWorld->AddObject(CreateSpaceship());
 	CreateAsteroids(10);
 
-	// Add listeners
 	mGameWorld->AddListener(&mScoreKeeper);
 	mScoreKeeper.AddListener(shared_ptr<Asteroids>(this));
 	mGameWorld->AddListener(&mPlayer);
@@ -467,21 +488,20 @@ void Asteroids::StartGame() {
 void Asteroids::ShowInstructions() {
 	mGameState = INSTRUCTIONS;
 
-	// Clear high scores if showing
+	
 	for (auto label : mHighScoreLabels) {
 		mGameDisplay->GetContainer()->RemoveComponent(
 			static_pointer_cast<GUIComponent>(label));
 	}
 	mHighScoreLabels.clear();
 
-	// Hide menu items
+	
 	mTitleLabel->SetVisible(false);
 	mStartLabel->SetVisible(false);
 	mDifficultyLabel->SetVisible(false);
 	mInstructionsLabel->SetVisible(false);
 	mHighScoreLabel->SetVisible(false);
 
-	// Show instructions
 	for (auto& line : mInstructionLines) {
 		line->SetVisible(true);
 	}
@@ -500,6 +520,9 @@ void Asteroids::ClearMenuAsteroids()
 void Asteroids::ReturnToMenu() {
 	mGameState = MENU;
 
+	ClearDifficultyMenu();
+
+
 	for (auto label : mHighScoreLabels) {
 		mGameDisplay->GetContainer()->RemoveComponent(
 			static_pointer_cast<GUIComponent>(label));
@@ -517,9 +540,23 @@ void Asteroids::ReturnToMenu() {
 	}
 	mBackLabel->SetVisible(false);
 
+	
 	mGameOverLabel->SetVisible(false);
-}
 
+	if (mMenuAsteroids.empty()) {
+		for (int i = 0; i < 15; i++) {
+			Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("asteroid1");
+			shared_ptr<Sprite> asteroid_sprite = make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+			asteroid_sprite->SetLoopAnimation(true);
+			shared_ptr<GameObject> asteroid = make_shared<Asteroid>();
+			asteroid->SetBoundingShape(make_shared<BoundingSphere>(asteroid->GetThisPtr(), 10.0f));
+			asteroid->SetSprite(asteroid_sprite);
+			asteroid->SetScale(0.15f);
+			mMenuAsteroids.push_back(asteroid);
+			mGameWorld->AddObject(asteroid);
+		}
+	}
+}
 // Methods for scoring
 //////////////////////////////////////////
 
@@ -625,7 +662,7 @@ void Asteroids::ShowHighScoreTable() {
 		yPos -= 0.08f;
 	}
 
-	// 'E' to exit game!!!
+	
 	auto exitLabel = make_shared<GUILabel>("Press E to exit game");
 	exitLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	exitLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_BOTTOM);
@@ -636,7 +673,128 @@ void Asteroids::ShowHighScoreTable() {
 }
 
 //////////////////////////////////////////
+// Implementation of linking difficulty with part 2 features 
 
+
+void Asteroids::CreateDifficultyMenu()
+{
+	if (!mGameDisplay || !mGameDisplay->GetContainer()) {
+		cerr << "Error: Game display or container not initialized!" << endl;
+		return;
+	}
+	
+	mTitleLabel->SetVisible(false);
+	mStartLabel->SetVisible(false);
+	mDifficultyLabel->SetVisible(false);
+	mInstructionsLabel->SetVisible(false);
+	mHighScoreLabel->SetVisible(false);
+
+	
+	if (mDifficultyTitle) {
+		mGameDisplay->GetContainer()->RemoveComponent(
+			static_pointer_cast<GUIComponent>(mDifficultyTitle));
+	}
+
+	for (auto option : mDifficultyOptions) {
+		mGameDisplay->GetContainer()->RemoveComponent(
+			static_pointer_cast<GUIComponent>(option));
+	}
+	mDifficultyOptions.clear();
+
+	
+	mDifficultyTitle = make_shared<GUILabel>("SELECT DIFFICULTY");
+	mDifficultyTitle->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mGameDisplay->GetContainer()->AddComponent(
+		static_pointer_cast<GUIComponent>(mDifficultyTitle),
+		GLVector2f(0.5f, 0.8f));
+
+	
+	vector<string> options = {
+		"1. Easy (All power-ups)",
+		"2. Normal (Controls only)",
+		"3. Hard (No power-ups)",
+		"4. Back to Menu"
+	};
+
+	float yPos = 0.6f;
+	for (const auto& option : options) {
+		auto label = make_shared<GUILabel>(option);
+		label->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+		mGameDisplay->GetContainer()->AddComponent(
+			static_pointer_cast<GUIComponent>(label),
+			GLVector2f(0.5f, yPos));
+		mDifficultyOptions.push_back(label);
+		yPos -= 0.1f;
+	}
+}
+
+// new method to setting difficult 
+void Asteroids::SetDifficulty(Difficulty difficulty)
+{
+	mCurrentDifficulty = difficulty;
+
+	
+	if (mSpaceship) {
+		switch (difficulty) {
+		case EASY:
+			mNextLifeScoreThreshold = 300;
+			mSpaceship->SetInvulnerabilityEnabled(true);
+			break;
+		case NORMAL:
+			mNextLifeScoreThreshold = INT_MAX;
+			mSpaceship->SetInvulnerabilityEnabled(false);
+			break;
+		case HARD:
+			mNextLifeScoreThreshold = INT_MAX;
+			mSpaceship->SetInvulnerabilityEnabled(false);
+			break;
+		}
+	}
+	else {
+		
+		switch (difficulty) {
+		case EASY:
+			mNextLifeScoreThreshold = 300;
+			break;
+		case NORMAL:
+		case HARD:
+			mNextLifeScoreThreshold = INT_MAX;
+			break;
+		}
+	}
+
+	
+	ClearDifficultyMenu();
+	mGameState = MENU;
+	CreateMenu();
+}
+
+void Asteroids::ClearDifficultyMenu()
+{
+	if (mDifficultyTitle) {
+		if (mGameDisplay && mGameDisplay->GetContainer()) {
+			mGameDisplay->GetContainer()->RemoveComponent(
+				static_pointer_cast<GUIComponent>(mDifficultyTitle));
+		}
+		mDifficultyTitle.reset();
+	}
+
+	for (auto option : mDifficultyOptions) {
+		if (mGameDisplay && mGameDisplay->GetContainer()) {
+			mGameDisplay->GetContainer()->RemoveComponent(
+				static_pointer_cast<GUIComponent>(option));
+		}
+	}
+	mDifficultyOptions.clear();
+}
+
+
+
+
+
+
+
+///////////////////////////////////////////
 shared_ptr<GameObject> Asteroids::CreateExplosion()
 {
 	Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("explosion");

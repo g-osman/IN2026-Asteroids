@@ -23,15 +23,26 @@ class GameObject;
 class Spaceship;
 class GUILabel;
 
-//  this enum is to keep track of game states 
+//  this enum is to keep track of different game states 
 enum GameState {
 	MENU,
 	PLAYING,
 	GAME_OVER,
 	INSTRUCTIONS,
 	HIGH_SCORES,
-	NAME_ENTRY
+	NAME_ENTRY,
+	DIFFICULTY
 };
+
+
+// this enum is for difficulty options
+enum Difficulty {
+	EASY,       
+	NORMAL,     
+	HARD       
+};
+
+
 
 class Asteroids : public GameSession, public IKeyboardListener, public IGameWorldListener, public IScoreListener, public IPlayerListener
 {
@@ -71,6 +82,16 @@ public:
 	void ShowInstructions();
 
 
+	// Adding these members to link difficulty with powerup options
+	Difficulty mCurrentDifficulty;
+	shared_ptr<GUILabel> mDifficultyTitle;
+	vector<shared_ptr<GUILabel>> mDifficultyOptions;
+
+	void CreateDifficultyMenu();
+	void SetDifficulty(Difficulty difficulty);
+
+
+	void ClearDifficultyMenu();
 private:
 	shared_ptr<Spaceship> mSpaceship;
 	shared_ptr<GUILabel> mScoreLabel;
